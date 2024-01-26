@@ -1,0 +1,55 @@
+# log4rs.yml
+refresh_rate: 30 seconds
+appenders:
+  console:
+    kind: console
+    encoder:
+      pattern: "{h({l}  {d(%Y-%m-%d %H:%M:%S)} - {T}-{M} {f}-{L}: {m}{n})}"
+  file:
+    kind: rolling_file
+    path: "log/log.log"
+    append: true
+    policy:
+      kind: compound # 默认值, 即使用所有 policy
+      trigger: # 当文件超过10mb 时触发 rotate
+        kind: size
+        limit: 10mb
+      roller: # rotate 类型
+#        kind: delete # 直接原有文件
+        # 或者用 fixed_window
+        kind: fixed_window
+        pattern: "log/log-{}-.log" # 注意, 需要至少包含 "{}" 用于插入索引值
+        base: 0 # 压缩日志索引值起点
+        count: 10 # 最大保存压缩文件数
+    encoder:
+      pattern: "{h({l})} - {d(%Y-%m-%d %H:%M:%S)}-{M}: {m}{n}"
+
+root:
+  level: debug
+  appenders:
+    - console
+    - file
+
+
+#  d， - 当前时间。默认情况下，使用 ISO 8601 格式。 可以采用 接受的语法提供自定义格式。 时区默认为本地，但可以通过以下方式显式指定 传递 for UTC 或 for local time 的第二个参数。datechronoutclocal
+#  {d} - 2016-03-20T14:22:20.644420340-08:00
+#  {d(%Y-%m-%d %H:%M:%S)} - 2016-03-20 14:22:20
+#  {d(%Y-%m-%d %H:%M:%S %Z)(utc)} - 2016-03-20 22:22:20 UTC
+#                                   f， - 日志消息来自的源文件，或者如果 未提供。file???
+#                                   h， - 根据日志级别设置其参数的样式。这 样式为深红色表示错误，红色表示警告，蓝色表示信息，以及 所有其他级别的默认样式。highlight
+#  {h(the level is {l})} - the level is ERROR
+#                          l， - 日志级别。level
+#                          L， - 日志消息来自的行，如果不是 提供。line???
+#                          m， - 日志消息。message
+#                          M， - 日志消息来自的模块，如果不是 提供。module???
+#                          P， - 当前进程 ID。pid
+#                          i， - 当前系统范围的唯一线程 ID。tid
+#                          n- 特定于平台的换行符。
+#                          t， - 日志消息的目标。target
+#                          T， - 当前线程的名称。thread
+#                          I， - 当前线程的 pthread ID。thread_id
+#                          X， - MDC 中的值。第一个参数指定 键，第二个参数指定默认值，如果 密钥在 MDC 中不存在。第二个参数是可选的，并且 默认为空字符串。mdc
+#  {X(user_id)} - 123e4567-e89b-12d3-a456-426655440000
+#  {X(nonexistent_key)(no mapping)} - no mapping
+#                                     “未命名”格式化程序只是设置其参数的格式，应用该格式 规范。
+#  {({l} {m})} - INFO hello
