@@ -14,7 +14,7 @@ pub fn fail()->Json<JsonResult<String>>{
 }
 
 #[post("/pptest",data = "<user>")]
-pub fn test_post_json(user: Json<user::User>)->Json<JsonResult<user::User>>{
+pub async fn test_post_json(user: Json<user::User>)->Json<JsonResult<user::User>>{
    println!("{:?}",user);
    Json(JsonResult::ok_for_data(Some(user.into_inner())))
 }
