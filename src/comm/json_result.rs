@@ -1,13 +1,10 @@
-use std::io;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use rocket::{Data, Response};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::form::validate::Len;
-use rocket::futures::io::Cursor;
 use rocket::http::{ContentType, Method, Status};
 use rocket::request::{FromRequest, Outcome, Request};
-use rocket::serde::json::serde_json;
 use rocket::serde::Serialize;
 use rocket::yansi::Paint;
 
@@ -100,7 +97,7 @@ impl<'r> FromRequest<'r> for ApiKey<'r> {
 }
 
 
-struct Counter {
+pub struct Counter {
     get: AtomicUsize,
     post: AtomicUsize,
 }
@@ -132,21 +129,13 @@ impl Fairing  for Counter {
     }
 
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
-        // Don't change a successful user's response, ever.
-        // if response.status() != Status::Ok {
-        //     return
-        // }
-
-        // Rewrite the response to return the current counts.
-        if req.method() == Method::Get && req.uri().path() == "/apikey" {
+        if res.status()==Status::Unauthorized{
             println!("后置请求");
-            let get_count = self.get.load(Ordering::Relaxed);
-            let post_count = self.post.load(Ordering::Relaxed);
-            let body = format!("Get: {}\nPost: {}", get_count, post_count);
-
+            let result: JsonResult<String> = JsonResult::fail_for_code_mes(401, String::from("未找到授权"));
+            let body = serde_json::to_string(&result).unwrap();
             res.set_status(Status::Ok);
-            res.set_header(ContentType::Plain);
-            res.set_sized_body(body.len(),Cursor::new(body));
+            res.set_header(ContentType::JSON);
+            res.set_sized_body(body.len(),std::io::Cursor::new(body));
         }
     }
 }
