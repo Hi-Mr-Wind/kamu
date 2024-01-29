@@ -1,7 +1,17 @@
-use std::any::Any;
-use rocket::serde::Serialize;
+use std::io;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
-#[derive(Serialize)]
+use rocket::{Data, Response};
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::form::validate::Len;
+use rocket::futures::io::Cursor;
+use rocket::http::{ContentType, Method, Status};
+use rocket::request::{FromRequest, Outcome, Request};
+use rocket::serde::json::serde_json;
+use rocket::serde::Serialize;
+use rocket::yansi::Paint;
+
+#[derive(Serialize, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct JsonResult<T> {
     pub code: i32,
@@ -38,15 +48,105 @@ impl<T> JsonResult<T> {
         JsonResult {
             code: 400,
             mes: "失败".to_string(),
-            data:None,
+            data: None,
         }
     }
 
-    pub fn fail_for_code(code: i32) ->JsonResult<T> {
-        JsonResult{
+    pub fn fail_for_code(code: i32) -> JsonResult<T> {
+        JsonResult {
             code,
-            mes:"失败".to_string(),
+            mes: "失败".to_string(),
             data: None,
+        }
+    }
+    pub fn fail_for_code_mes(code: i32, mes: String) -> JsonResult<T> {
+        JsonResult {
+            code,
+            mes,
+            data: None,
+        }
+    }
+}
+
+pub struct ApiKey<'r>(&'r str);
+
+#[derive(Debug)]
+pub enum ApiKeyError {
+    Missing(JsonResult<String>),
+    Invalid(JsonResult<String>),
+}
+
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for ApiKey<'r> {
+    type Error = ApiKeyError;
+
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        //如果“key”是有效的 API 密钥字符串，则返回 true。
+        fn is_valid(key: &str) -> bool {
+            key == "valid_api_key"
+        }
+
+        match req.headers().get_one("x-api-key") {
+            None => Outcome::Error((Status::Unauthorized, ApiKeyError::Missing(JsonResult::fail_for_code_mes(401, "找不到授权码".to_string())))),
+            Some(key) => {
+                if is_valid(key) {
+                    Outcome::Success(ApiKey(key))
+                } else {
+                    Outcome::Error((Status::Unauthorized, ApiKeyError::Missing(JsonResult::fail_for_code_mes(401, "授权码过期".to_string()))))
+                }
+            }
+        }
+    }
+}
+
+
+struct Counter {
+    get: AtomicUsize,
+    post: AtomicUsize,
+}
+impl Counter {
+    pub fn new() -> Counter {
+        Counter {
+            get: AtomicUsize::new(0),
+            post: AtomicUsize::new(0),
+        }
+    }
+}
+
+#[rocket::async_trait]
+impl Fairing  for Counter {
+    // This is a request and response fairing named "GET/POST Counter".
+    fn info(&self) -> Info {
+        Info {
+            name: "GET/POST Counter",
+            kind: Kind::Request | Kind::Response
+        }
+    }
+
+    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
+        if req.method() == Method::Get {
+            self.get.fetch_add(1, Ordering::Relaxed);
+        } else if req.method() == Method::Post {
+            self.post.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
+        // Don't change a successful user's response, ever.
+        // if response.status() != Status::Ok {
+        //     return
+        // }
+
+        // Rewrite the response to return the current counts.
+        if req.method() == Method::Get && req.uri().path() == "/apikey" {
+            println!("后置请求");
+            let get_count = self.get.load(Ordering::Relaxed);
+            let post_count = self.post.load(Ordering::Relaxed);
+            let body = format!("Get: {}\nPost: {}", get_count, post_count);
+
+            res.set_status(Status::Ok);
+            res.set_header(ContentType::Plain);
+            res.set_sized_body(body.len(),Cursor::new(body));
         }
     }
 }

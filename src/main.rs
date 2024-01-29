@@ -10,6 +10,7 @@ mod route;
 mod comm;
 mod controller;
 mod entity;
+mod errors;
 
 #[launch]
 fn rocket() -> _ {

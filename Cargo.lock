@@ -766,6 +766,7 @@ dependencies = [
  "ring",
  "rocket",
  "serde",
+ "serde_json",
  "sha256",
 ]
 
