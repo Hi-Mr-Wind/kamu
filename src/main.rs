@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use log::Level::Error;
-use uuid::{Uuid, uuid};
+use uuid::{NoContext, Timestamp, Uuid, uuid};
 
 use crate::core::read_file::file_handling;
 
@@ -29,8 +29,14 @@ mod service;
 #[tokio::test]
 async fn main_test() {
     let star_time = get_current_timestamp_ms();
-
-    let uuid = Uuid::new_v4().to_string().replace("-","");
+    let ts = Timestamp::from_unix(NoContext, SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as u64, SystemTime::now()
+                                      .duration_since(UNIX_EPOCH)
+                                      .unwrap()
+                                      .as_millis() as u32);
+    let uuid = Uuid::new_v7(ts).to_string();
     let src_path = PathBuf::from(r"C:\Users\Admin\Downloads\Cangjie-0.39.8-windows_x64.exe");
     let dest_dir = PathBuf::from(format!("./enc_file/{}",uuid));
     let key = 0x42; // 使用一个简单的异或密钥
@@ -50,7 +56,7 @@ async fn main_test() {
     let end_time = get_current_timestamp_ms();
     let end_time = end_time - star_time;
     println!("文件处理耗时：{}", end_time);
-    file_handling::restore_file(&dest_dir,)
+    // file_handling::restore_file(&dest_dir,)
 }
 fn get_current_timestamp_ms() -> u128 {
     SystemTime::now()
