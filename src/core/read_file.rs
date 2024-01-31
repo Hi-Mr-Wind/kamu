@@ -83,7 +83,7 @@ pub mod file_handling {
         let file_hash = create_file_hash(src_path);
         let cow = file_name.clone().to_string();
         let size = file_size.clone();
-        let data_stc = FileData::new(cow, size, file_hash);
+        let data_stc = FileData::new(cow, size, file_hash,chunk_number);
         let data = data_stc.to_json();
 
         let file_info_path = dest_dir.join(format!("{}.data", uid));
@@ -93,10 +93,25 @@ pub mod file_handling {
     }
 
     /// # 还原并存储文件
-    /// `src_path`原始文件路径
+    /// `src_path`原始文件夹路径
     /// `dest_dir`目标文件夹路径
-    /// `key` 加密key
-    pub async fn restore_file(src_dir: &PathBuf, dest_path: &PathBuf, key: u8) -> io::Result<()> {
+    /// `key` 解密key
+    pub async fn restore_file(src_dir: &PathBuf, dest_path: &PathBuf, key: u8, uid: &PathBuf) -> io::Result<()> {
+        let pat = src_dir.join(uid);
+        // 创建一个原始文件
+        let file_restore = File::create(uid)?;
+        // 打开并
+        let file_data = File::open(pat)?;
+        for entry in fs::read_dir(src_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            let metadata = fs::metadata(&path)?;
+            if metadata.is_file() {
+                // 如果是文件，则添加到tar文件中
+
+            }
+        }
+
         // 打开存储的文件信息
         let file_info_path = src_dir.join(format!("{}.data", dest_path.file_name().unwrap().to_string_lossy()));
         let mut file_info = String::new();

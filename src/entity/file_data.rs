@@ -7,11 +7,12 @@ pub struct FileData {
     pub file_name: String,
     pub file_size: u64,
     pub file_hash: String,
+    pub file_sequence : i32,
 }
 
 impl FileData {
-    pub fn new(file_name: String, file_size: u64, file_hash: String) -> FileData {
-        FileData { file_name, file_size, file_hash }
+    pub fn new(file_name: String, file_size: u64, file_hash: String,file_sequence: i32) -> FileData {
+        FileData { file_name, file_size, file_hash,file_sequence }
     }
 
     pub fn to_json(&self) -> String{
