@@ -19,20 +19,18 @@ pub fn create_file_hash(file_path: &PathBuf) -> String {
 
 pub mod file_handling {
     use std::{fs, io};
-    use std::borrow::Cow;
     use std::fs::File;
     use std::io::{BufRead, Write};
     use std::io::Read;
     use std::path::PathBuf;
     use std::sync::Arc;
-    use regex::Regex;
+
+    use flate2::Compression;
+    use flate2::write::GzEncoder;
     use tar::Builder;
 
     use crate::core::read_file::create_file_hash;
     use crate::entity::file_data::FileData;
-    use flate2::write::GzEncoder;
-    use flate2::Compression;
-    use tokio::join;
 
     //块尺寸256KB
     const CHUNK_SIZE: usize = 256 * 1024;
@@ -64,7 +62,7 @@ pub mod file_handling {
             }
             let uid_cloud = uid.clone();
             // 创建新文件名
-            let chunk_path = dest_dir.join(format!("{}-chunk{}", &uid_cloud, chunk_number));
+            let chunk_path = dest_dir.join(format!("{}-{}", &uid_cloud, chunk_number));
             //开启协程写入文件
             let handle = tokio::spawn(async move {
                 let mut chunk_file = File::create(chunk_path).ok().unwrap();

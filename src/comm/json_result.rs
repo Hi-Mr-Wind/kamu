@@ -121,11 +121,7 @@ impl Fairing  for Counter {
     }
 
     async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
-        if req.method() == Method::Get {
-            self.get.fetch_add(1, Ordering::Relaxed);
-        } else if req.method() == Method::Post {
-            self.post.fetch_add(1, Ordering::Relaxed);
-        }
+
     }
 
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {

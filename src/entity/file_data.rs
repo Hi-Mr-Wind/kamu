@@ -28,9 +28,3 @@ impl FileData {
     }
 
 }
-
-#[derive(Debug)]
-pub struct FileChunk {
-   pub data: Vec<u8>,
-   pub num: usize,
-}
