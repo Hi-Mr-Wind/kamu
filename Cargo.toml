@@ -2,8 +2,22 @@
 name = "kamu"
 version = "0.1.0"
 edition = "2021"
+authors = ["wind"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+# 0、没有优化（编译快）1、基本的内联优化 2、许多优化，包括一些跨模块优化 3、极致的优化。
+opt-level = 3
+# 控制并行代码生成的数量（默认是12，可以增加以加快编译速度）。
+codegen-units = 16
+# 链接时优化（Link-time Optimization），可以与opt-level一起使用以进一步优化代码。
+lto = true
+# 控制调试信息的生成（默认是2，可以设置为0以减少二进制文件大小）。
+debuginfo = 0
+
+[profile.dev]
+opt-level = 0
+
 
 [dependencies]
 log = "0.4"
