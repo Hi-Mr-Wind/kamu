@@ -4,9 +4,13 @@ use rocket::serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
 pub struct FileData {
+    //文件名
     pub file_name: String,
+    //文件大小
     pub file_size: u64,
+    //文件哈希
     pub file_hash: String,
+    //文件序列数
     pub file_sequence : i32,
 }
 

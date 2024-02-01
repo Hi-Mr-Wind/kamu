@@ -83,7 +83,7 @@ pub mod file_handling {
         let file_hash = create_file_hash(src_path);
         let cow = file_name.clone().to_string();
         let size = file_size.clone();
-        let data_stc = FileData::new(cow, size, file_hash,chunk_number);
+        let data_stc = FileData::new(cow, size, file_hash, chunk_number);
         let data = data_stc.to_json();
 
         let file_info_path = dest_dir.join(format!("{}.data", uid));
@@ -97,44 +97,43 @@ pub mod file_handling {
     /// `dest_dir`目标文件夹路径
     /// `key` 解密key
     pub async fn restore_file(src_dir: &PathBuf, dest_path: &PathBuf, key: u8, uid: &PathBuf) -> io::Result<()> {
-        let pat = src_dir.join(uid);
+        let file_data_name = uid.join(".data");
+        let buf = PathBuf::from(".data");
+        //数据文件路径
+        let data = src_dir.join(buf);
+        // 打开并读取项目记录文件
+        let mut file_data = File::open(&data)?;
+        let mut json = String::new();
+        file_data.read_to_string(&mut json)?;
+        //文件数据
+        let file_data: FileData = serde_json::from_str(json.as_str())?;
+
+        //还原文件路径
+        let path_buf = dest_path.join(&file_data.file_name);
         // 创建一个原始文件
-        let file_restore = File::create(uid)?;
-        // 打开并
-        let file_data = File::open(pat)?;
+        let mut file_restore = File::create(path_buf)?;
+
+        // 缓冲区应有大小
+        let buf_size = 256usize * file_data.file_sequence;
+        // 缓冲区
+        let mut buffer = vec![0; buf_size];
+        //寻找并读取文件内容
         for entry in fs::read_dir(src_dir)? {
             let entry = entry?;
             let path = entry.path();
             let metadata = fs::metadata(&path)?;
+            // 如果是文件
             if metadata.is_file() {
-                // 如果是文件，则添加到tar文件中
+                let option = path.file_name()?;
+                // 如果是数据文件则跳过
+                if file_data_name.eq(&option) {
+                    continue
+                } else {
 
+                }
             }
         }
-
-        // 打开存储的文件信息
-        let file_info_path = src_dir.join(format!("{}.data", dest_path.file_name().unwrap().to_string_lossy()));
-        let mut file_info = String::new();
-        fs::read_to_string(file_info_path)?;
-        let mut lines = file_info.lines();
-        let filename = lines.next().unwrap().split(": ").nth(1).unwrap();
-        let filesize = lines.next().unwrap().split(": ").nth(1).unwrap().parse::<usize>().unwrap();
-
-        // 读取并解密文件
-        let mut writer = io::BufWriter::new(File::create(dest_path)?);
-        let mut chunk_num = 0;
-        let mut total_bytes_written = 0;
-        while total_bytes_written < filesize {
-            let chunk_path = src_dir.join(format!("{}-{}", chunk_num, filename));
-            let chunk_data = fs::read(chunk_path)?;
-            let mut chunk_data_decrypted = chunk_data.clone();
-            for byte in chunk_data_decrypted.iter_mut() {
-                *byte ^= key;
-            }
-            writer.write_all(&chunk_data_decrypted)?;
-            total_bytes_written += chunk_data_decrypted.len();
-            chunk_num += 1;
-        }
+        file_restore.write_all(&buffer)?;
         Ok(())
     }
 
@@ -168,5 +167,4 @@ pub mod file_handling {
 
         Ok(())
     }
-
 }
