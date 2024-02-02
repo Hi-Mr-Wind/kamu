@@ -3,13 +3,14 @@ extern crate log;
 #[macro_use]
 extern crate rocket;
 
+use std::io;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
-use log::Level::Error;
 use uuid::{NoContext, Timestamp, Uuid, uuid};
 
-use crate::core::read_file::file_handling;
+use crate::core::file_handling;
+use crate::core::file_handling::restore_file;
 
 mod core;
 mod route;
@@ -37,16 +38,16 @@ async fn main_test() {
                                       .unwrap()
                                       .as_millis() as u32);
     let uuid = Uuid::new_v7(ts).to_string();
-    let src_path = PathBuf::from(r"C:\Users\Admin\Downloads\Cangjie-0.39.8-windows_x64.exe");
+    let src_path = PathBuf::from(r"C:\Users\29120\Downloads\WebStorm-2023.2.1.exe");
     let dest_dir = PathBuf::from(format!("./enc_file/{}",uuid));
     let key = 0x42; // 使用一个简单的异或密钥
-    let dest_data = PathBuf::from(format!("./enc_file/{}.tag.gz",uuid).as_str());
+    let dest_data = PathBuf::from(format!("./enc_file/{}",uuid).as_str());
 
     // 上传文件并加密
     let result = file_handling::convert_file(&src_path, &dest_dir, key, Arc::new(uuid)).await;
     match result {
         Ok(file_handling) => {
-            // file_handling::compress_folder_to_tar_gz(&dest_dir, &dest_data).await.expect("生成文件错误");
+            // file_handling::compress_folder_to_zip(&dest_dir, &dest_data).await;
             println!("{:?}",file_handling)
         }
         Err(e) => {
@@ -55,8 +56,9 @@ async fn main_test() {
     }
     let end_time = get_current_timestamp_ms();
     let end_time = end_time - star_time;
-    println!("文件处理耗时：{}", end_time);
+    println!("文件处理耗时：{}秒", end_time/1000u128);
     // file_handling::restore_file(&dest_dir,)
+
 }
 fn get_current_timestamp_ms() -> u128 {
     SystemTime::now()
@@ -64,4 +66,18 @@ fn get_current_timestamp_ms() -> u128 {
         .unwrap()
         .as_millis()
 }
-fn main() {}
+#[tokio::main]
+async fn main() {
+    let star_time = get_current_timestamp_ms();
+    let uuid = String::from("10690807-e5ff-7bbb-b529-ee9ede39eda0");
+    let dest_dir = PathBuf::from(format!("./enc_file/{}",&uuid));
+    // let dest_dir = PathBuf::from(r"D:\rust-kamu\enc_file\1");
+    let dest_data = PathBuf::from(format!("./enc_file/{}",&uuid).as_str());
+    // file_handling::compress_folder_to_zip(&dest_dir, &dest_data).await;
+    let key = 0x42; // 使用一个简单的异或密钥
+    let uid = PathBuf::from(uuid);
+    restore_file(&dest_dir, &dest_data, key, &uid).await.expect("TODO: panic message");
+    let end_time = get_current_timestamp_ms();
+    let end_time = end_time - star_time;
+    println!("文件处理耗时：{}秒", end_time/1000u128);
+}
