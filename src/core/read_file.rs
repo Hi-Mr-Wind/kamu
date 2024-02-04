@@ -1,5 +1,4 @@
 use std::hash::Hash;
-use std::io::{BufRead, Write};
 use std::path::PathBuf;
 
 use sha256::try_digest;

@@ -1,5 +1,4 @@
 use std::{fs, io};
-use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Read;
 use std::io::Write;
@@ -7,7 +6,6 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use zip_archive::Archiver;
-use crate::errors::kamu_error::KaMuError;
 
 use crate::core::read_file::create_file_hash;
 use crate::entity::file_data::FileData;
