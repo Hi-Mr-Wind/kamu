@@ -1,7 +1,5 @@
-use rocket::serde::{Deserialize, Serialize};
 
-#[derive(Serialize,Deserialize,Debug)]
-#[serde(crate = "rocket::serde")]
+#[derive(Debug)]
 pub struct User {
     pub name: String,
     pub phone:String,

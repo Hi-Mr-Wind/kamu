@@ -1,24 +1,24 @@
 #[macro_use]
 extern crate log;
-#[macro_use]
-extern crate rocket;
 
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use futures_util::future::join;
 
 use uuid::{NoContext, Timestamp, Uuid};
 
 use crate::core::file_handling;
-use crate::route::new_app;
+use crate::route::routes::new_app;
 
 mod core;
-mod route;
 mod comm;
 mod controller;
 mod entity;
 mod errors;
 mod service;
+mod route;
+mod app_middleware;
 
 
 #[tokio::main]
@@ -26,6 +26,7 @@ async fn main() {
     log4rs::init_file("./log4rs.yml", Default::default()).unwrap();
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, new_app()).await.unwrap();
+   async { info!("Service started successfully") }.await;
 }
 
 

@@ -1,8 +1,7 @@
 use log::Level;
-use rocket::serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "rocket::serde")]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct FileData {
     //文件名
     pub file_name: String,

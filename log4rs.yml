@@ -25,7 +25,7 @@ appenders:
       pattern: "{h({l})} - {d(%Y-%m-%d %H:%M:%S)}-{M}: {m}{n}"
 
 root:
-  level: info
+  level: debug
   appenders:
     - console
     - file

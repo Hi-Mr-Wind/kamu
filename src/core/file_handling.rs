@@ -86,7 +86,7 @@ pub async fn restore_file(src_dir: &PathBuf, dest_path: &PathBuf, key: u8, uid: 
     let mut json = String::new();
     file_data.read_to_string(&mut json)?;
     //文件数据
-    let file_data: FileData = serde_json::from_str(json.as_str())?;
+    let file_data: FileData = serde_json::from_str(&*json)?;
 
     //还原文件路径
     let path_buf = dest_path.join(&file_data.file_name);
