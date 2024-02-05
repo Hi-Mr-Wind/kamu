@@ -1,12 +1,12 @@
 use axum::{extract, Json};
+use axum::http::StatusCode;
 
-use crate::comm::json_result::{JR, JsonResult};
-use crate::errors::kamu_error::{AppError, KaMuError};
+use crate::comm::json_result::{JsonResult};
 
-pub async fn get_url() -> extract::Json<JR<String>> {
+pub async fn get_url() -> extract::Json<JsonResult<String>> {
     Json(JsonResult::ok(String::from("成功")))
 }
 
-pub async fn test_panic() -> AppError {
-    AppError::new(500,String::from("失败"),KaMuError::RunTimeError)
+pub async fn test_panic() -> Json<JsonResult<String>> {
+    Json (JsonResult::fail_for_code(StatusCode::INTERNAL_SERVER_ERROR.as_u16()))
 }

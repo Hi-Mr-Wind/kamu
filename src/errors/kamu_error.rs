@@ -1,12 +1,9 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
-use axum::routing::head;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-use crate::errors::kamu_error::KaMuError::RunTimeError;
 
+use axum::http::{header, StatusCode};
+use axum::response::{IntoResponse, Response};
+use serde::{Deserialize, Serialize};
 
 ///程序内部异常
 #[derive(Debug,Deserialize,Serialize)]
@@ -21,13 +18,13 @@ pub enum  KaMuError{
 
 #[derive(Debug,Deserialize,Serialize)]
 pub struct AppError{
-    pub code:i32,
+    pub code:u16,
     pub mes:String,
     pub data: KaMuError
 }
 
 impl AppError {
-    pub fn new(code:i32, mes:String, data:KaMuError) ->AppError{
+    pub fn new(code:u16, mes:String, data:KaMuError) ->AppError{
         AppError{
             code,
             mes,
@@ -38,8 +35,8 @@ impl AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         (
-            // StatusCode::INTERNAL_SERVER_ERROR,
             StatusCode::INTERNAL_SERVER_ERROR,
+            [(header::CONTENT_TYPE, "application/json")],
             serde_json::to_string(&self).unwrap(),
         )
             .into_response()
