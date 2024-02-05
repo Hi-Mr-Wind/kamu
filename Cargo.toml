@@ -35,9 +35,10 @@ tokio = { version = "1.35", features = ["rt", "rt-multi-thread", "macros"] }
 bytes = "1.5.0"
 
 uuid = { version = "1.7",features =["v4","fast-rng","macro-diagnostics","v7"]}
-toml = "0.8"
 regex = "1.10"
 zip_archive = "1.2.2"
 futures-util = "0.3.30"
 tower = { version = "0.4.13", features = ["timeout"] }
 anyhow = "1.0.79"
+dashmap = "5.5"
+lazy_static = "1.4"
