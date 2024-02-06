@@ -4,7 +4,7 @@ use axum::{
     response::Response,
 };
 use axum::body::Body;
-use axum::http::{HeaderValue, StatusCode};
+use axum::http::{HeaderValue, StatusCode, Uri};
 use crate::comm::json_result::JsonResult;
 
 ///自定义中间件记录日志
@@ -21,6 +21,9 @@ pub async fn app_logger(request: Request<Body>, next: Next, ) -> Response {
 
 pub async fn err(request: Request<Body>, next: Next, ) -> Response{
     let mut x = next.run(request).await;
+    if x.status().as_u16() == 401 {
+        return x
+    }
     if x.status().is_server_error() {
         let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(x.status().as_u16(), String::from("服务器内部错误"))).unwrap();
         let response = Response::builder()
@@ -40,6 +43,12 @@ pub async fn err(request: Request<Body>, next: Next, ) -> Response{
         return response
     };
     x
+}
+
+/// 不存在的路由
+pub async fn fallback(uri: Uri) -> (StatusCode, String) {
+    info!("No route for {}",&uri);
+    (StatusCode::NOT_FOUND, format!("Not Found for {uri}"))
 }
 
 /// 校验token
