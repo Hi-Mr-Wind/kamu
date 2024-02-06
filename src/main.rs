@@ -1,15 +1,9 @@
 #[macro_use]
 extern crate log;
 
-use std::path::PathBuf;
-use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use futures_util::future::join;
 
-use uuid::{NoContext, Timestamp, Uuid};
 use crate::comm::app_cache::CACHE_INSTANCE;
-
-use crate::core::file_handling;
 use crate::route::routes::new_app;
 
 mod core;
@@ -39,29 +33,37 @@ async fn main_test() {
         None => {println!("未找到引用值")}
         Some(axum) => {println!("{}",axum)}
     }
+    tokio::spawn(async move{
+     let c = CACHE_INSTANCE.clone();
+        let option = c.get("key");
+        match option {
+            None => {println!("协成1未找到引用值")}
+            Some(axum) => {println!("协成：{}",axum)}
+        }
+    });
     tokio::time::sleep(Duration::from_secs(1)).await;
     let option = caceh.get("key");
     match option {
         None => {println!("引用值已被过期删除")}
         Some(axum) => {println!("{}",axum)}
     }
-
-    let handle = tokio::spawn(async move {
-        let caceh = CACHE_INSTANCE.clone();
-        caceh.insert("key1".to_string(), "value1".to_string(), Option::from(Duration::from_secs(1)));
-        let option = caceh.get("key1");
-        match option {
-            None => {println!("线程1未找到引用值")}
-            Some(axum) => {println!("{}",axum)}
-        }
-        tokio::time::sleep(Duration::from_secs(1)).await;
-        let option = caceh.get("key1");
-        match option {
-            None => {println!("线程1引用值已被过期删除")}
-            Some(axum) => {println!("{}",axum)}
-        }
-    });
-    handle.await;
+    //
+    // let handle = tokio::spawn(async move {
+    //     let caceh = CACHE_INSTANCE.clone();
+    //     caceh.insert("key1".to_string(), "value1".to_string(), Option::from(Duration::from_secs(1)));
+    //     let option = caceh.get("key1");
+    //     match option {
+    //         None => {println!("线程1未找到引用值")}
+    //         Some(axum) => {println!("{}",axum)}
+    //     }
+    //     tokio::time::sleep(Duration::from_secs(1)).await;
+    //     let option = caceh.get("key1");
+    //     match option {
+    //         None => {println!("线程1引用值已被过期删除")}
+    //         Some(axum) => {println!("{}",axum)}
+    //     }
+    // });
+    // handle.await;
     // let star_time = get_current_timestamp_ms();
     // let ts = Timestamp::from_unix(NoContext, SystemTime::now()
     //     .duration_since(UNIX_EPOCH)
