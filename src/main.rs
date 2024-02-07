@@ -14,6 +14,7 @@ mod errors;
 mod service;
 mod route;
 mod app_middleware;
+mod persistent_layer;
 
 
 #[tokio::main]
