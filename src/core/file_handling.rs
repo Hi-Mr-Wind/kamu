@@ -8,7 +8,6 @@ use sha256::try_digest;
 
 use zip_archive::Archiver;
 
-use crate::core::read_file::create_file_hash;
 use crate::entity::file_data::FileData;
 
 //块尺寸256KB

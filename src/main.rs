@@ -102,6 +102,10 @@ fn get_current_timestamp_ms() -> u128 {
         .unwrap()
         .as_millis()
 }
+#[tokio::test]
+async fn  test1(){
+    println!("CPU核心数：{}",num_cpus::get());
+}
 
 // #[tokio::main]
 // async fn main() {

@@ -1,24 +1,26 @@
+use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use crate::comm::config_util::{COINFIG};
 
 thread_local! {
-    pub static DB:Arc<DatabaseConnection> = Arc::new(create_connection());
+    pub static DB:Arc<DatabaseConnection> = Arc::new(get_connection());
 }
 
 
 /// 创建数据库连接池
-pub fn create_connection() -> DatabaseConnection {
-    let url = get_db_url().as_str();
+pub async fn create_connection() -> DatabaseConnection {
+    let url_st = get_db_url();
+    let url = url_st.as_str();
     let mut opt = ConnectOptions::new(url);
     let binding = COINFIG.with(|f| f.clone());
     let config = binding.lock().expect("读取配置信息失败");
-    let log_info = match config.database.sql_logger_level {
-        String::from("info") => log::LevelFilter::Info,
-        String::from("debug") => log::LevelFilter::Debug,
-        String::from("error") => log::LevelFilter::Error,
-        String::from("warn") => log::LevelFilter::Warn,
+    let log_info = match config.database.sql_logger_level.as_str() {
+        "info" => log::LevelFilter::Info,
+        "debug" => log::LevelFilter::Debug,
+        "error" => log::LevelFilter::Error,
+        "warn" => log::LevelFilter::Warn,
         _ => log::LevelFilter::Info
     };
 
@@ -31,7 +33,12 @@ pub fn create_connection() -> DatabaseConnection {
         .sqlx_logging(config.database.sql_logger_open)
         .sqlx_logging_level(log_info)
         .set_schema_search_path("my_schema"); // Setting default PostgreSQL schema
-    Database::connect(opt)?
+     Database::connect(opt).await.expect("数据库连接失败")
+}
+
+pub fn get_connection()->DatabaseConnection{
+    let conn = create_connection();
+    tokio::runtime::Runtime::new().unwrap().block_on(conn)
 }
 
 pub fn get_db_url() -> String {
