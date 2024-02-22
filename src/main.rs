@@ -5,7 +5,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::comm::app_cache::CACHE_INSTANCE;
 use crate::route::routes::new_app;
-
+use sysinfo::{
+    Components, Disks, Networks, System,
+};
 mod core;
 mod comm;
 mod controller;
@@ -105,6 +107,58 @@ fn get_current_timestamp_ms() -> u128 {
 #[tokio::test]
 async fn  test1(){
     println!("CPU核心数：{}",num_cpus::get());
+}
+
+#[tokio::test]
+async fn test_sys_info(){
+// 请注意，我们使用“new_all”来确保所有列表
+// 组件、网络接口、磁盘和用户已经存在
+    let mut sys = System::new_all();
+
+// 首先，我们更新“系统”结构的所有信息。
+    sys.refresh_all();
+    println!("=> system:");
+// RAM 和交换信息：
+    println!("total memory: {} MB", sys.total_memory()/1024u64/1024u64);
+    println!("used memory : {} MB", sys.used_memory()/1024u64/1024u64);
+    println!("total swap  : {} MB", sys.total_swap()/1024u64/1024u64);
+    println!("used swap   : {} MB", sys.used_swap()/1024u64/1024u64);
+
+// 显示系统信息：
+    println!("System name:             {:?}", System::name());
+    println!("System kernel version:   {:?}", System::kernel_version());
+    println!("System OS version:       {:?}", System::os_version());
+    println!("System host name:        {:?}", System::host_name());
+
+// CPU数量：
+    println!("NB CPUs: {}", sys.cpus().len());
+
+// 显示进程 ID、名称和磁盘使用情况：
+    for (pid, process) in sys.processes() {
+        println!("[{pid}] {} {:?}", process.name(), process.disk_usage());
+    }
+
+// 我们显示所有磁盘的信息：
+    println!("=> disks:");
+    let disks = Disks::new_with_refreshed_list();
+    for disk in &disks {
+        println!("{disk:?}");
+    }
+
+// 网络接口名称、接收的数据和传输的数据：
+    let networks = Networks::new_with_refreshed_list();
+    println!("=> networks:");
+    for (interface_name, data) in &networks {
+        println!("{interface_name}: {}/{} B", data.received(), data.transmitted());
+    }
+
+// 组件温度：
+    let components = Components::new_with_refreshed_list();
+    println!("=> components:");
+    for component in &components {
+        println!("{component:?}");
+    }
+
 }
 
 // #[tokio::main]
