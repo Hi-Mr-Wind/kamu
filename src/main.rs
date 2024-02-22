@@ -5,9 +5,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::comm::app_cache::CACHE_INSTANCE;
 use crate::route::routes::new_app;
-use sysinfo::{
-    Components, Disks, Networks, System,
-};
+use sysinfo::{Components, Disks, Networks, System};
 mod core;
 mod comm;
 mod controller;
@@ -119,35 +117,43 @@ async fn test_sys_info(){
     sys.refresh_all();
     println!("=> system:");
 // RAM 和交换信息：
-    println!("total memory: {} MB", sys.total_memory()/1024u64/1024u64);
-    println!("used memory : {} MB", sys.used_memory()/1024u64/1024u64);
-    println!("total swap  : {} MB", sys.total_swap()/1024u64/1024u64);
-    println!("used swap   : {} MB", sys.used_swap()/1024u64/1024u64);
+    println!("总内存:           {} MB", sys.total_memory()/1024u64/1024u64);
+    println!("已使用内存 :       {} MB", sys.used_memory()/1024u64/1024u64);
+    println!("总交换内存  :      {} MB", sys.total_swap()/1024u64/1024u64);
+    println!("已使用交换内存   :  {} MB", sys.used_swap()/1024u64/1024u64);
 
 // 显示系统信息：
-    println!("System name:             {:?}", System::name());
-    println!("System kernel version:   {:?}", System::kernel_version());
-    println!("System OS version:       {:?}", System::os_version());
-    println!("System host name:        {:?}", System::host_name());
+    println!("系统名称:             {:?}", System::name().unwrap());
+    println!("系统版本:             {:?}", System::kernel_version().unwrap());
+    println!("系统OS版本:           {:?}", System::os_version().unwrap());
+    println!("系统主机名:           {:?}", System::host_name().unwrap());
 
 // CPU数量：
-    println!("NB CPUs: {}", sys.cpus().len());
+    println!("CPU核心数: {}", sys.cpus().len());
 
-// 显示进程 ID、名称和磁盘使用情况：
-    for (pid, process) in sys.processes() {
-        println!("[{pid}] {} {:?}", process.name(), process.disk_usage());
-    }
+// // 显示进程 ID、名称和磁盘使用情况：
+//     for (pid, process) in sys.processes() {
+//         println!("[{pid}] {} {:?}", process.name(), process.disk_usage());
+//     }
 
 // 我们显示所有磁盘的信息：
-    println!("=> disks:");
+    println!("=> 磁盘信息:");
     let disks = Disks::new_with_refreshed_list();
+    let mut numerical_order = 1;
     for disk in &disks {
-        println!("{disk:?}");
+        println!("-----磁盘{}-----",numerical_order);
+        println!("磁盘名称：{:?}\n磁盘类型：{}\n文件系统：{:?}\n磁盘总大小：{}GB\n可用空间：{}GB",
+                 disk.name(),
+                 disk.kind(),
+                 disk.file_system(),
+                 disk.total_space()/1024u64/1024u64/1024u64,
+                 disk.available_space()/1024u64/1024u64/1024u64);
+        numerical_order += 1
     }
 
 // 网络接口名称、接收的数据和传输的数据：
     let networks = Networks::new_with_refreshed_list();
-    println!("=> networks:");
+    println!("=> 网络信息:");
     for (interface_name, data) in &networks {
         println!("{interface_name}: {}/{} B", data.received(), data.transmitted());
     }
