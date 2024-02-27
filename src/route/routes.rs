@@ -1,6 +1,5 @@
 use std::fmt::Debug;
 
-use axum::http::{StatusCode, Uri};
 use axum::{middleware, Router};
 use axum::routing::get;
 

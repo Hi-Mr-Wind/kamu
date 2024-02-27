@@ -4,10 +4,10 @@ use std::io::Read;
 use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Arc;
+use sha256::try_digest;
 
 use zip_archive::Archiver;
 
-use crate::core::read_file::create_file_hash;
 use crate::entity::file_data::FileData;
 
 //块尺寸256KB
@@ -133,6 +133,20 @@ pub async fn compress_folder_to_zip(source_dir: &PathBuf, target_file: &PathBuf)
         Ok(_) => (),
         Err(e) => {
             error!("文件转换异常！{}",e)
+        }
+    }
+}
+
+
+/// 计算文件哈希值
+pub fn create_file_hash(file_path: &PathBuf) -> String {
+    // let input = Path::new(file_path);
+    let result = try_digest(file_path);
+    match result {
+        Ok(s) => { s }
+        Err(s) => {
+            error!("{}",s);
+            return "".to_string();
         }
     }
 }

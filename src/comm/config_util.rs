@@ -1,6 +1,7 @@
 use std::fs;
 use std::io::Read;
 use std::sync::{Arc, Mutex};
+
 use serde::Deserialize;
 
 thread_local! {
@@ -31,6 +32,10 @@ pub struct DatabaseConfig {
     pub password: String,
     ///数据库名称
     pub db_name: String,
+    ///sql日志开关
+    pub sql_logger_open: bool,
+    ///sql日志级别
+    pub sql_logger_level: String,
 }
 
 ///连接池参数
@@ -40,6 +45,16 @@ pub struct ConnectionPool {
     pub max_connections: u32,
     ///最小连接数
     pub min_connections: u32,
+    ///连接超时时间
+    pub connect_timeout: u64,
+    ///等待获取连接所花费的最长时间
+    pub acquire_timeout: u64,
+    ///最大空闲时间
+    pub idle_timeout: u64,
+    ///单个连接的最长生存期
+    pub max_lifetime: u64,
+
+
 }
 
 /// 读取配置文件并获取配置信息
@@ -50,8 +65,4 @@ pub fn get_config() -> AppConfig {
     serde_yaml::from_str(&buffer).expect("配置文件格式异常！")
 }
 
-pub fn get_db_url() -> String{
-    let binding = COINFIG.with(|f|f.clone());
-    let config = binding.lock().expect("读取配置信息失败");
-    format!("{}://{}:{}@{}/{}",config.database.data_base,config.database.username,config.database.password,config.database.host,config.database.db_name)
-}
+
