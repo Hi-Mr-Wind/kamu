@@ -1,7 +1,14 @@
 
-#[derive(Debug)]
+#[derive(Debug，Serialize, Deserialize)]
 pub struct User {
-    pub name: String,
+    pub uid: String,
+    pub nick_name: String,
     pub phone:String,
-    pub age:i32
+    pub age:u8,
+    pub gender:u8,
+    pub username:String,
+    pub password:String,
+    pub head_portrait:String,
+    pub state:u8,
+    pub create_time:u128,
 }
