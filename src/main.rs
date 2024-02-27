@@ -15,6 +15,7 @@ mod service;
 mod route;
 mod app_middleware;
 mod persistent_layer;
+mod dao;
 
 
 #[tokio::main]
