@@ -1,9 +1,9 @@
-use std::fmt::{Debug, Formatter, Write};
+use std::fmt::{Debug, Write};
 
-use sea_orm::{ColumnDef, ColumnTrait, ColumnType, ColumnTypeTrait, DeriveColumn, DeriveEntity, EntityName, EntityTrait, EnumIter, Iden, IdenStatic};
+use sea_orm::{ColumnTrait, EntityName, EnumIter, Iden, IdenStatic};
+use serde::Serialize;
 
-#[derive(Copy,Clone,Debug，Serialize, Default, DeriveEntity)]
-#[sea_orm(table_name = "user")]
+#[derive(Debug,Serialize, Default)]
 pub struct User {
     pub uid: String,
     pub nick_name: String,
@@ -17,26 +17,28 @@ pub struct User {
     pub create_time:u128,
 }
 
-#[derive(Copy, Clone, Default, Debug, DeriveEntity)]
+#[derive(Copy, Clone, Default, Debug)]
 pub struct UserTable;
+
+impl IdenStatic for UserTable {
+    fn as_str(&self) -> &str {
+        todo!()
+    }
+}
+
+impl Iden for UserTable {
+    fn unquoted(&self, s: &mut dyn Write) {
+        todo!()
+    }
+}
 
 impl EntityName for UserTable{
     fn table_name(&self) -> &str {
         "user"
     }
 }
-#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+#[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Column {
     Uid,
     NickName,
-}
-impl ColumnTrait for Column {
-    type EntityName = UserTable;
-
-    fn def(&self) -> ColumnDef {
-        match self {
-            Self::Id => ColumnType::String(None).def(),
-            Self::Name => ColumnType::String(None).def(),
-        }
-    }
 }

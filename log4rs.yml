@@ -22,7 +22,7 @@ appenders:
         base: 0 # 压缩日志索引值起点
         count: 10 # 最大保存压缩文件数
     encoder:
-      pattern: "{h({l})} - {d(%Y-%m-%d %H:%M:%S)}-{M}: {m}{n}"
+      pattern: "{h({l})} - {d(%Y-%m-%d %H:%M:%S)}-{I}: {m}{n}"
 
 root:
   level: debug

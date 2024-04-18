@@ -2,7 +2,7 @@ use log::Level;
 use quote::__private::TokenStream;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug,Serialize, Deserialize,Entity)]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct FileData {
     //文件名
     pub file_name: String,
@@ -32,10 +32,4 @@ impl FileData {
         }
     }
 
-}
-
-#[proc_macro_derive(Entity)]
-pub fn derive_entity(input: TokenStream) -> TokenStream {
-    println!("{:?}",input);
-    input
 }
