@@ -6,6 +6,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::comm::app_cache::CACHE_INSTANCE;
 use crate::route::routes::new_app;
 use sysinfo::{Components, Disks, Networks, System};
+use crate::entity::file_data::FileData;
+
 mod core;
 mod comm;
 mod controller;
@@ -22,6 +24,11 @@ async fn main() {
     log4rs::init_file("./log4rs.yml", Default::default()).unwrap();
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, new_app()).await.unwrap();
+}
+
+#[tokio::test]
+async fn entity_test(){
+    let _ = FileData::new("exe".to_string(),100,"cqwdaqqwd".to_string(),12);
 }
 
 

@@ -46,3 +46,6 @@ lazy_static = "1.4"
 sea-orm = "0.12"
 num_cpus = "1.16.0"
 sysinfo = "0.30"
+
+syn = "1.0"
+quote = "1.0"
