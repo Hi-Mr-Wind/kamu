@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate log;
 
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use crate::comm::app_cache::CACHE_INSTANCE;
 use crate::route::routes::new_app;
@@ -17,6 +17,7 @@ mod service;
 mod route;
 mod app_middleware;
 mod persistent_layer;
+mod dao;
 
 
 #[tokio::main]
@@ -38,22 +39,22 @@ async fn main_test() {
     caceh.insert("key".to_string(), "value".to_string(), Option::from(Duration::from_secs(1)));
     let option = caceh.get("key");
     match option {
-        None => {println!("未找到引用值")}
-        Some(axum) => {println!("{}",axum)}
+        None => { println!("未找到引用值") }
+        Some(axum) => { println!("{}", axum) }
     }
-    tokio::spawn(async move{
-     let c = CACHE_INSTANCE.clone();
+    tokio::spawn(async move {
+        let c = CACHE_INSTANCE.clone();
         let option = c.get("key");
         match option {
-            None => {println!("协成1未找到引用值")}
-            Some(axum) => {println!("协成：{}",axum)}
+            None => { println!("协成1未找到引用值") }
+            Some(axum) => { println!("协成：{}", axum) }
         }
     });
     tokio::time::sleep(Duration::from_secs(1)).await;
     let option = caceh.get("key");
     match option {
-        None => {println!("引用值已被过期删除")}
-        Some(axum) => {println!("{}",axum)}
+        None => { println!("引用值已被过期删除") }
+        Some(axum) => { println!("{}", axum) }
     }
     //
     // let handle = tokio::spawn(async move {
@@ -189,3 +190,30 @@ async fn test_sys_info(){
 //     let end_time = end_time - star_time;
 //     println!("文件处理耗时：{}秒", end_time / 1000u128);
 // }
+fn find_number(target: u32) -> Option<u32> {
+    for i in 0..1000000 {
+        if i == target {
+            return Some(i);
+        }
+    }
+    None
+}
+
+#[tokio::test]
+async fn test_password() {
+    let target = 999999; // 替换为你想要找到的六位数字
+    let now = Instant::now();
+
+    match find_number(target) {
+        Some(number) => {
+            let elapsed = now.elapsed();
+            println!("找到号码: {:06}", number);
+            println!("所用时间: {:.2?}", elapsed);
+        }
+        None => {
+            let elapsed = now.elapsed();
+            println!("在范围内找不到数字.");
+            println!("时间（以秒为单位）: {:.2?}", elapsed);
+        }
+    }
+}
