@@ -5,6 +5,7 @@ use axum::http::{header, StatusCode};
 use axum::response::{IntoResponse, Response};
 use serde::{Deserialize, Serialize};
 
+
 ///程序内部异常
 #[derive(Debug,Deserialize,Serialize)]
 pub enum  KaMuError{
@@ -16,6 +17,7 @@ pub enum  KaMuError{
     UnloadingError
 }
 
+
 #[derive(Debug,Deserialize,Serialize)]
 pub struct AppError{
     pub code:u16,
@@ -24,8 +26,8 @@ pub struct AppError{
 }
 
 impl AppError {
-    pub fn new(code:u16, mes:String, data:KaMuError) ->AppError{
-        AppError{
+    pub fn new(code:u16, mes:String, data:KaMuError) -> AppError {
+       AppError{
             code,
             mes,
             data
