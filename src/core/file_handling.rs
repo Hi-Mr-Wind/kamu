@@ -146,7 +146,7 @@ pub fn create_file_hash(file_path: &PathBuf) -> String {
         Ok(s) => { s }
         Err(s) => {
             error!("{}",s);
-            return "".to_string();
+            "".to_string()
         }
     }
 }

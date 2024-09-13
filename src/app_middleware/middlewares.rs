@@ -48,7 +48,9 @@ pub async fn err(request: Request<Body>, next: Next, ) -> Response{
 /// 不存在的路由
 pub async fn fallback(uri: Uri) -> (StatusCode, String) {
     info!("No route for {}",&uri);
-    (StatusCode::NOT_FOUND, format!("Not Found for {uri}"))
+    let json:JsonResult<Option<String>> =  JsonResult::fail_for_code_mes(404,format!("Not Found for {uri}"));
+    let json = serde_json::to_string(&json).expect("序列化失败！");
+    (StatusCode::NOT_FOUND, json)
 }
 
 /// 校验token

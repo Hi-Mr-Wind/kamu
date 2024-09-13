@@ -49,52 +49,6 @@ async fn main_test() {
         None => { println!("引用值已被过期删除") }
         Some(axum) => { println!("{}", axum) }
     }
-    //
-    // let handle = tokio::spawn(async move {
-    //     let caceh = CACHE_INSTANCE.clone();
-    //     caceh.insert("key1".to_string(), "value1".to_string(), Option::from(Duration::from_secs(1)));
-    //     let option = caceh.get("key1");
-    //     match option {
-    //         None => {println!("线程1未找到引用值")}
-    //         Some(axum) => {println!("{}",axum)}
-    //     }
-    //     tokio::time::sleep(Duration::from_secs(1)).await;
-    //     let option = caceh.get("key1");
-    //     match option {
-    //         None => {println!("线程1引用值已被过期删除")}
-    //         Some(axum) => {println!("{}",axum)}
-    //     }
-    // });
-    // handle.await;
-    // let star_time = get_current_timestamp_ms();
-    // let ts = Timestamp::from_unix(NoContext, SystemTime::now()
-    //     .duration_since(UNIX_EPOCH)
-    //     .unwrap()
-    //     .as_millis() as u64, SystemTime::now()
-    //                                   .duration_since(UNIX_EPOCH)
-    //                                   .unwrap()
-    //                                   .as_millis() as u32);
-    // let uuid = Uuid::new_v7(ts).to_string();
-    // let src_path = PathBuf::from(r"C:\Users\29120\Downloads\WebStorm-2023.2.1.exe");
-    // let dest_dir = PathBuf::from(format!("./enc_file/{}", uuid));
-    // let key = 0x42; // 使用一个简单的异或密钥
-    // let dest_data = PathBuf::from(format!("./enc_file/{}", uuid).as_str());
-    //
-    // // 上传文件并加密
-    // let result = file_handling::convert_file(&src_path, &dest_dir, key, Arc::new(uuid)).await;
-    // match result {
-    //     Ok(file_handling) => {
-    //         // file_handling::compress_folder_to_zip(&dest_dir, &dest_data).await;
-    //         println!("{:?}", file_handling)
-    //     }
-    //     Err(e) => {
-    //         error!("{:?}",e)
-    //     }
-    // }
-    // let end_time = get_current_timestamp_ms();
-    // let end_time = end_time - star_time;
-    // println!("文件处理耗时：{}秒", end_time / 1000u128);
-    // file_handling::restore_file(&dest_dir,)
 }
 
 fn get_current_timestamp_ms() -> u128 {
@@ -105,7 +59,7 @@ fn get_current_timestamp_ms() -> u128 {
 }
 #[tokio::test]
 async fn  test1(){
-    println!("CPU核心数：{}",num_cpus::get());
+    // println!("CPU核心数：{}",num_cpus::get());
 }
 
 #[tokio::test]
@@ -131,6 +85,12 @@ async fn test_sys_info(){
 
 // CPU数量：
     println!("CPU核心数: {}", sys.cpus().len());
+    let cpu = sys.cpus();
+    for x in cpu {
+        println!("CPU使用率:{}",x.cpu_usage());
+        println!("cpu名称：{}",x.brand())
+    }
+
 
 // // 显示进程 ID、名称和磁盘使用情况：
 //     for (pid, process) in sys.processes() {

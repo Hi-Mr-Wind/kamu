@@ -39,10 +39,10 @@ uuid = { version = "1.7",features =["v4","fast-rng","macro-diagnostics","v7"]}
 regex = "1.10"
 zip_archive = "1.2.2"
 futures-util = "0.3.30"
-tower = { version = "0.4.13", features = ["timeout"] }
+tower = { version = "0.5", features = ["timeout"] }
 anyhow = "1.0.79"
 dashmap = "5.5"
 lazy_static = "1.4"
-sea-orm = "0.12"
-num_cpus = "1.16.0"
 sysinfo = "0.30"
+time = "0.3.36"
+syn = "1.0"

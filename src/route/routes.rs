@@ -15,7 +15,8 @@ pub fn new_app() -> Router {
         .route("/", get(|| async { "Hello, World!" }))
         .route("/getUrl", get(sys_controller::get_url))
         .route("/panic", get(sys_controller::test_panic))
-        .layer(middleware::from_fn(mid::verify_key));
+        .nest("/sysController",core_router());
+        // .layer(middleware::from_fn(mid::verify_key));
     let r = Router::new()
         .nest("/api", router)
         .layer(middleware::from_fn(mid::app_logger))
@@ -23,4 +24,8 @@ pub fn new_app() -> Router {
         .fallback(mid::fallback);
     info!("Service started successfully!");
     r
+}
+pub fn core_router() -> Router {
+    Router::new()
+        .route("/getOsInfo",get(sys_controller::get_os_info))
 }
