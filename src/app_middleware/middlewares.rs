@@ -59,7 +59,8 @@ pub async fn verify_key(request: Request<Body>, next: Next, ) -> Response<Body> 
     match option {
         None => {
             info!("未找到token");
-            let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(StatusCode::UNAUTHORIZED.as_u16(), String::from("非法用户"))).unwrap();
+            let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(StatusCode::UNAUTHORIZED.as_u16(),
+                                                                                        String::from("非法用户"))).unwrap();
             let response = Response::builder()
                 .status(StatusCode::UNAUTHORIZED)
                 .header("Content-Type","application/json;charset=UTF-8")
