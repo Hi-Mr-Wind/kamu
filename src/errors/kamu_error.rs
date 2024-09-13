@@ -35,7 +35,8 @@ impl AppError {
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         (
-            StatusCode::INTERNAL_SERVER_ERROR,
+            // StatusCode::INTERNAL_SERVER_ERROR,
+            StatusCode::from_u16(self.code).unwrap(),
             [(header::CONTENT_TYPE, "application/json")],
             serde_json::to_string(&self).unwrap(),
         )

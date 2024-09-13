@@ -5,6 +5,7 @@ use axum::{
 };
 use axum::body::Body;
 use axum::http::{HeaderValue, StatusCode, Uri};
+use axum::response::IntoResponse;
 use crate::comm::json_result::JsonResult;
 
 ///自定义中间件记录日志
@@ -19,22 +20,24 @@ pub async fn app_logger(request: Request<Body>, next: Next, ) -> Response {
     response
 }
 
-pub async fn err(request: Request<Body>, next: Next, ) -> Response{
+pub async fn err(request: Request<Body>, next: Next, ) -> Response {
     let mut x = next.run(request).await;
-    if x.status().as_u16() == 401 {
+    if x.status().is_client_error() {
         return x
     }
     if x.status().is_server_error() {
-        let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(x.status().as_u16(), String::from("服务器内部错误"))).unwrap();
+        // let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(x.status().as_u16(), String::from("服务器内部错误"))).unwrap();
         let response = Response::builder()
-            .status(x.status())
+            // .status(x.status())
+            .status(StatusCode::OK)
             .header("Content-Type","application/json;charset=UTF-8")
-            .body(Body::from(result))
+            // .body(Body::from(result))
+            .body(x.into_body())
             .unwrap();
         return response
     }
     if !x.status().is_success() {
-        let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(x.status().as_u16(), String::from(x.status().to_string()))).unwrap();
+        let result = serde_json::to_string(&JsonResult::<String>::fail_for_code_mes(x.status().as_u16(), String::from("服务器内部错误"))).unwrap();
         let response = Response::builder()
             .status(x.status())
             .header("Content-Type","application/json;charset=UTF-8")

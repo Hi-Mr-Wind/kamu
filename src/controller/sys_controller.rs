@@ -4,6 +4,7 @@ use axum::Json;
 use crate::comm::json_result::JsonResult;
 use crate::entity::OsInfo;
 use crate::entity::user::User;
+use crate::errors::kamu_error::{AppError, KaMuError};
 use crate::service::core_service::CoreService;
 
 pub async fn get_url() -> Json<JsonResult<String>> {
@@ -16,6 +17,8 @@ pub async fn get_os_info()->Json<JsonResult<OsInfo>>{
     Json(JsonResult::ok_for_data(Some(os_info)))
 }
 
-pub async fn test_panic() -> Json<JsonResult<String>> {
-    Json (JsonResult::fail_for_code(StatusCode::INTERNAL_SERVER_ERROR.as_u16()))
+pub async fn test_panic() -> Result<Json<JsonResult<String>>,AppError> {
+    // Json (JsonResult::fail_for_code(StatusCode::INTERNAL_SERVER_ERROR.as_u16()))
+   let err =  AppError::new(505,"测试的错误".to_string(),KaMuError::RunTimeError);
+    Err(err)
 }
